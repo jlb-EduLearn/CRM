@@ -258,7 +258,7 @@ const API_BASE_URL = 'https://edulearn-crm-api.jlb-2fb.workers.dev';
         appContainer.classList.add("sidebar-open");
     }
 
-    function navigateTo(targetTab) {
+    async function navigateTo(targetTab) {
         if (!targetTab || !tabMeta[targetTab]) return;
 
         navItems.forEach(n => n.classList.remove("active"));
