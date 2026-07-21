@@ -1,5 +1,7 @@
 // EduLearn CRM Command Controller Logic
 
+const API_BASE_URL = 'https://edulearn-crm-api.jlb-2fb.workers.dev';
+
 (async () => {
     // Check if database layer is active
     if (!window.EduLearnDB) {
@@ -103,7 +105,7 @@
             // Step 1: Request a pre-signed URL from your backend endpoint.
             // This endpoint securely generates a temporary URL for the upload.
             // We pass the desired fileName to the backend.
-            const presignResponse = await fetch(`/api/generate-r2-upload-url?fileName=${encodeURIComponent(fileName)}`);
+            const presignResponse = await fetch(`${API_BASE_URL}/api/generate-r2-upload-url?fileName=${encodeURIComponent(fileName)}`);
 
             if (!presignResponse.ok) {
                 const errorText = await presignResponse.text();
