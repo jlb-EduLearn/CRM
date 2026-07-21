@@ -1,0 +1,1461 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+    <link rel="stylesheet" href="css/edulearn.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Make modals scrollable on all screen sizes */
+        .modal-overlay {
+            /* Note: Moved from inline style to CSS for consistency */
+            --form-grid-gap: 16px;
+            overflow-y: auto;
+            padding: 2rem 1rem;
+        }
+
+        .modal-card {
+            margin: auto;
+        }
+
+        /* Note: Added utility classes to replace inline grid styles */
+        .form-grid {
+            display: grid;
+            gap: var(--form-grid-gap);
+        }
+
+        .form-grid-2-col {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .form-grid-3-col {
+            grid-template-columns: 1fr 1fr 1fr;
+        }
+
+        .form-grid-4-col {
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+        }
+
+        .form-grid-custom-1 {
+            grid-template-columns: 2fr 1fr;
+        }
+
+        .form-grid-custom-2 {
+            grid-template-columns: 1.5fr 1fr 1fr 1fr;
+            align-items: center;
+            font-size: 12px;
+        }
+
+        /* Note: Added modal size classes to replace inline max-width */
+        .modal-card-sm {
+            max-width: 440px;
+        }
+
+        .modal-card-md {
+            max-width: 560px;
+        }
+
+        .modal-card-lg {
+            max-width: 900px;
+        }
+
+        /* Make school rows clickable */
+        .clickable-row {
+            cursor: pointer;
+        }
+
+        /* Styles for the new School View Modal */
+        .school-view-container {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .school-view-section {
+            border-top: 1px solid var(--border-color);
+            padding-top: 24px;
+        }
+
+        .school-view-section-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .school-view-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 12px 24px;
+        }
+
+        .school-view-item label {
+            display: block;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .school-view-item span {
+            font-size: 14px;
+        }
+
+        /* KPI Card Theming */
+        .kpi-stat-card[data-color="primary"] {
+            --accent-gradient: linear-gradient(135deg, var(--primary, #4f46e5), var(--primary-light, #818cf8));
+            --icon-bg: var(--primary-bg, rgba(79, 70, 229, 0.12));
+            --icon-color: var(--primary, #4f46e5);
+        }
+
+        .kpi-stat-card[data-color="teal"] {
+            --accent-gradient: linear-gradient(135deg, var(--teal-600, #0d9488), var(--teal-400, #2dd4bf));
+            --icon-bg: var(--teal-bg, rgba(13, 148, 136, 0.12));
+            --icon-color: var(--teal-600, #0d9488);
+        }
+
+        .kpi-stat-card[data-color="success"] {
+            --accent-gradient: linear-gradient(135deg, var(--success, #16a34a), var(--success-light, #4ade80));
+            --icon-bg: var(--success-bg, rgba(22, 163, 74, 0.12));
+            --icon-color: var(--success, #16a34a);
+        }
+
+        .kpi-stat-card[data-color="warning"] {
+            --accent-gradient: linear-gradient(135deg, var(--warning, #ea580c), var(--warning-light, #f97316));
+            --icon-bg: var(--warning-bg, rgba(234, 88, 12, 0.12));
+            --icon-color: var(--warning, #ea580c);
+        }
+
+        /* Ensure date picker icon is visible in dark mode */
+        [data-theme="dark"] input[type="date"],
+        [data-theme="glass"] input[type="date"] {
+            color-scheme: light;
+        }
+
+        /* For Webkit browsers, force the icon color to be red for visibility */
+        [data-theme="dark"] input[type="date"]::-webkit-calendar-picker-indicator,
+        [data-theme="glass"] input[type="date"]::-webkit-calendar-picker-indicator {
+            filter: invert(30%) sepia(94%) saturate(2700%) hue-rotate(348deg) brightness(95%) contrast(91%);
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ================= LOGIN SCREEN ================= -->
+    <div id="login-screen" class="login-wrapper">
+        <div class="login-bg-shapes">
+            <div class="shape shape-1"></div>
+            <div class="shape shape-2"></div>
+        </div>
+
+        <div class="login-card">
+            <div class="login-header">
+                <div class="login-logo-container" style="margin-bottom: 16px;">
+                    <img src="EDULEARN LOGO.png" alt="EduLearn Logo" style="height: 64px; margin-bottom: 8px;">
+                </div>
+                <h2>EDULEARN CRM</h2>
+                <p>Please enter your credentials to access the portal.</p>
+            </div>
+
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="login-username">Portal Username / ID</label>
+                    <input type="text" id="login-username" class="form-input" placeholder="" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="login-password">Access Passcode</label>
+                    <input type="password" id="login-password" class="form-input" placeholder="••••••" required>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="margin-top: 10px; width: 100%;">
+                    <i class="fa-solid fa-right-to-bracket"></i> SIGN IN TO PORTAL
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ================= AUTHENTICATED CONTAINER ================= -->
+    <div class="app-container" id="app-portal" style="display: none;">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="logo-container">
+                <div class="logo-icon">
+                    <img src="favicon.png" alt="EduLearn Favicon" style="height: 32px; width: auto;">
+                </div>
+                <div class="logo-text">
+                    EDULEARN TECHNOLOGIES
+                </div>
+            </div>
+
+            <nav>
+                <ul class="nav-menu">
+                    <li class="nav-item active" data-tab="dashboard">
+                        <a href="#" role="button"><i class="fa-solid fa-chart-line"></i><span>Dashboard</span></a>
+                    </li>
+                    <li class="nav-item" data-tab="schools">
+                        <a href="#" role="button"><i class="fa-solid fa-school"></i><span>Schools Database</span></a>
+                    </li>
+                    <li class="nav-item" data-tab="business-report">
+                        <a href="#" role="button"><i class="fa-solid fa-file-contract"></i><span>Business Report</span></a>
+                    </li>
+                    <li class="nav-item" data-tab="financials">
+                        <a href="#" role="button"><i class="fa-solid fa-calculator"></i><span>Financials</span></a>
+                    </li>
+                    <li class="nav-item" data-tab="tasks">
+                        <a href="#" role="button"><i class="fa-solid fa-tasks"></i><span>Task Board</span></a>
+                    </li>
+                    <li class="nav-item" data-tab="kanban">
+                        <a href="#" role="button"><i class="fa-solid fa-kanban-board"></i><span>Progress Report</span></a>
+                    </li>
+                    <li class="nav-item" data-tab="activities">
+                        <a href="#" role="button"><i class="fa-solid fa-clipboard-list"></i><span>Daily Activities
+                                (DAR)</span></a>
+                    </li>
+                    <li class="nav-item" data-tab="payroll">
+                        <a href="#" role="button"><i
+                                class="fa-solid fa-file-invoice-dollar"></i><span>Payroll</span></a>
+                    </li>
+                    <li class="nav-item" data-tab="settings">
+                        <a href="#" role="button"><i class="fa-solid fa-sliders"></i><span>Settings</span></a>
+                    </li>
+                </ul>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="profile-card">
+                    <div class="profile-img" id="sidebar-profile-avatar">ED</div>
+                    <div class="profile-info" style="flex-grow: 1;">
+                        <h4 id="sidebar-profile-name">Delgum Jumalon</h4>
+                        <p id="sidebar-profile-role">President / CEO</p>
+                    </div>
+                    <button id="btn-logout" type="button" class="action-icon-btn" title="Sign Out"
+                        style="color: var(--danger);">
+                        <i class="fa-solid fa-power-off"></i>
+                    </button>
+                </div>
+            </div>
+        </aside>
+        <div id="sidebar-overlay" class="sidebar-overlay"></div>
+
+        <!-- Main Workspace Area -->
+        <main class="main-content">
+            <!-- Header section -->
+            <header class="top-header">
+                <div class="header-title">
+                    <h1 id="page-title-header">Sales Command Center</h1>
+                    <p id="page-subtitle-header">Daily fieldwork, pipeline monitoring, territory controls and quota
+                        tracking</p>
+                </div>
+
+                <div class="header-actions">
+                    <button id="btn-sidebar-toggle" type="button" class="sidebar-toggle-btn" title="Open navigation">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                    <!-- Date and Clock widget -->
+                    <div class="clock-widget">
+                        <i class="fa-solid fa-clock"></i>
+                        <span id="live-clock-time">00:00:00 AM</span>
+                    </div>
+
+                    <!-- Theme Selector Toggle -->
+                    <div class="theme-selector">
+                        <button type="button" class="theme-btn" data-theme-val="dark" title="Dark Mode">
+                            <i class="fa-solid fa-moon"></i>
+                        </button>
+                        <button type="button" class="theme-btn active" data-theme-val="light" title="Light Mode">
+                            <i class="fa-solid fa-sun"></i>
+                        </button>
+                        <button type="button" class="theme-btn" data-theme-val="glass" title="Glassmorphism Theme">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- ================= TAB: SALES COMMAND DASHBOARD ================= -->
+            <div id="dashboard-panel" class="page-panel active">
+                <!-- Metrics Stats Grid -->
+                <div class="stat-card-grid">
+                    <div class="kpi-stat-card" data-color="primary">
+                        <div class="kpi-stat-header">
+                            <span>GROSS PIPELINE</span>
+                            <div class="kpi-stat-icon"><i class="fa-solid fa-money-bill-wave"></i></div>
+                        </div>
+                        <div class="kpi-stat-value" id="kpi-gross-value">₱0</div>
+                        <div class="kpi-stat-footer"><span>Estimated total contract values</span></div>
+                    </div>
+
+                    <div class="kpi-stat-card" data-color="teal">
+                        <div class="kpi-stat-header">
+                            <span>NET SALES WON</span>
+                            <div class="kpi-stat-icon"><i class="fa-solid fa-circle-check"></i></div>
+                        </div>
+                        <div class="kpi-stat-value" id="kpi-net-won">₱0</div>
+                        <div class="kpi-stat-footer"><span id="kpi-won-deals-count">0 deals won</span></div>
+                    </div>
+
+                    <div class="kpi-stat-card" data-color="success">
+                        <div class="kpi-stat-header">
+                            <span>TOTAL COLLECTIONS</span>
+                            <div class="kpi-stat-icon"><i class="fa-solid fa-vault"></i></div>
+                        </div>
+                        <div class="kpi-stat-value" id="kpi-collected">₱0</div>
+                        <div class="kpi-stat-footer"><span id="kpi-collect-percent">0% average collected</span></div>
+                    </div>
+
+                    <div class="kpi-stat-card" data-color="warning">
+                        <div class="kpi-stat-header">
+                            <span>FIELD COMPLIANCE</span>
+                            <div class="kpi-stat-icon"><i class="fa-solid fa-calendar-check"></i></div>
+                        </div>
+                        <div class="kpi-stat-value" id="kpi-compliance-rate">0%</div>
+                        <div class="kpi-stat-footer"><span>SS visits meeting daily targets</span></div>
+                    </div>
+                </div>
+
+                <!-- Daily Activity Report (DAR) Compliance Panel -->
+                <div class="compliance-container">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <h3>Daily Fieldwork Compliance</h3>
+                            <p>Monitoring field visit compliance (Target: Minimum 4 school visits logged today)</p>
+                        </div>
+                        <div class="toolbar-filters">
+                            <select id="compliance-personnel-filter" class="filter-select" style="min-width: 220px;">
+                                <!-- Options populated by JS -->
+                            </select>
+                        </div>
+                    </div>
+                    <div class="compliance-grid" id="dashboard-compliance-list">
+                        <!-- Filled dynamically via JS -->
+                    </div>
+                </div>
+
+                <!-- Task Progress Widget -->
+                <div id="task-summary-widget" class="content-card" style="display: none;">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <h3>Specialist Task Progress</h3>
+                            <p>Overview of ongoing and completed tasks for Solution Specialists.</p>
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table class="crm-table">
+                            <caption>Specialist Task Progress</caption>
+                            <thead>
+                                <tr>
+                                    <th>Task</th>
+                                    <th>Assigned To</th>
+                                    <th>School</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="task-summary-table-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Analytics Charts Row -->
+                <div class="charts-grid">
+                    <div class="content-card">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <h3>Sales By Regional Command</h3>
+                                <p>Comparison of gross and net won business values</p>
+                            </div>
+                        </div>
+                        <div class="chart-wrapper">
+                            <canvas id="regionSalesChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= TAB: SCHOOLS DATABASE ================= -->
+            <div id="schools-panel" class="page-panel">
+                <div class="content-card">
+                    <div class="table-toolbar">
+                        <div class="search-wrapper">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                            <input type="text" id="school-search" class="search-input"
+                                placeholder="Search school name, code or territory...">
+                        </div>
+
+                        <div class="toolbar-filters">
+                            <select id="school-region-filter" class="filter-select">
+                                <option value="all">All Regions</option>
+                                <option value="North Luzon">North Luzon</option>
+                                <option value="South Luzon">South Luzon</option>
+                                <option value="Visayas">Visayas</option>
+                                <option value="Mindanao">Mindanao</option>
+                            </select>
+
+                            <select id="school-account-type-filter" class="filter-select">
+                                <option value="all">All Account Types</option>
+                                <option value="Prospect Account">Prospect Account</option>
+                                <option value="Pipeline Account">Pipeline Account</option>
+                                <option value="Strategic Account">Strategic Account</option>
+                                <option value="House Account">House Account</option>
+                                <option value="District Account">District Account</option>
+                                <option value="Regional Account">Regional Account</option>
+                                <option value="Reassigned Account">Reassigned Account</option>
+                                <option value="Temporary Coverage Account">Temporary Coverage Account</option>
+                                <option value="Disputed Account">Disputed Account</option>
+                                <option value="Dormant Account">Dormant Account</option>
+                                <option value="Lost Account">Lost Account</option>
+                                <option value="At-Risk Account">At-Risk Account</option>
+                                <option value="Reactivated Account">Reactivated Account</option>
+                            </select>
+
+                            <button id="btn-add-school" type="button" class="btn btn-primary btn-inline">
+                                <i class="fa-solid fa-plus"></i> Add School
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="table-container">
+                        <table class="crm-table">
+                            <caption>Schools and Institutions Database</caption>
+                            <thead>
+                                <tr>
+                                    <th>School / Institution</th>
+                                    <th>Code</th>
+                                    <th>Region & Territory</th>
+                                    <th>Specialist / RM</th>
+                                    <th>Products</th>
+                                    <th>Annual Value</th>
+                                    <th>Progress</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="school-table-body">
+                                <!-- Filled via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= TAB: BUSINESS REPORT ================= -->
+            <div id="business-report-panel" class="page-panel">
+                <div class="content-card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <h3>Business Report</h3>
+                            <p>Summary of sales performance by region and solution specialist.</p>
+                        </div>
+                    </div>
+                    <!-- Sales Summary Report -->
+                    <div id="sales-summary-report">
+                        <!-- Populated by JS -->
+                    </div>
+                    <!-- Specialist Report with Filter -->
+                    <div style="margin-top: 32px; border-top: 1px solid var(--border-color); padding-top: 24px;">
+                        <div class="table-toolbar" style="justify-content: flex-start;">
+                            <div class="toolbar-filters">
+                                <label for="ss-report-filter" style="font-size: 13px; font-weight: 600; color: var(--text-secondary); align-self: center;">Filter by Specialist:</label>
+                                <select id="ss-report-filter" class="filter-select" style="min-width: 280px;"></select>
+                            </div>
+                        </div>
+                        <div id="ss-business-report">
+                            <!-- Populated by JS -->
+                        </div>
+                        <div id="ss-school-details-report">
+                            <!-- Populated by JS when a specific SS is selected -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= TAB: FINANCIALS ================= -->
+            <div id="financials-panel" class="page-panel">
+                <div class="content-card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <h3>Deal Financials Reconciliation</h3>
+                            <p>Update Purchase Order (PO) values, delivered amounts, and returns for all won deals.</p>
+                        </div>
+                        <button id="btn-save-all-financials" class="btn btn-primary btn-inline" style="display: none;">
+                            <i class="fa-solid fa-save"></i> Save All Changes
+                        </button>
+                    </div>
+        <div class="table-toolbar">
+            <div class="search-wrapper">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="financials-search" class="search-input"
+                    placeholder="Search by school name or deal ID...">
+            </div>
+        </div>
+                    <div class="table-container">
+                        <table class="crm-table">
+                            <caption>Financials for Won Deals</caption>
+                            <thead>
+                                <tr>
+                                    <th>School / Deal</th>
+                                    <th>Assigned SS</th>
+                                    <th>PO Value (Gross)</th>
+                                    <th>SI Delivered (Actual)</th>
+                                    <th>Returns &amp; Adjustments</th>
+                                    <th>Net Business Value</th>
+                                </tr>
+                            </thead>
+                            <tbody id="financials-table-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= TAB: TASK BOARD ================= -->
+            <div id="tasks-panel" class="page-panel">
+                <div class="content-card">
+                    <div class="table-toolbar">
+                        <div class="search-wrapper">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                            <input type="text" id="task-search" class="search-input"
+                                placeholder="Search task title, school or owner...">
+                        </div>
+                        <div class="toolbar-filters">
+                            <button id="btn-add-task" type="button" class="btn btn-primary btn-inline">
+                                <i class="fa-solid fa-plus"></i> Create Task
+                            </button>
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table class="crm-table">
+                            <caption>Task Board</caption>
+                            <thead>
+                                <tr>
+                                    <th>Task</th>
+                                    <th>Category</th>
+                                    <th>Assigned To</th>
+                                    <th>School</th>
+                                    <th>Due Date</th>
+                                    <th>Status</th>
+                                    <th>Completion</th>
+                                    <th>Priority</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="task-table-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= TAB: PROGRESS REPORT (KANBAN) ================= -->
+            <div id="kanban-panel" class="page-panel">
+                <!-- Pipeline Select Buttons -->
+                <div class="pipeline-selector-wrapper" style="justify-content: flex-end;">
+                    <button id="btn-add-deal" type="button" class="btn btn-primary btn-inline"
+                        style="margin-left: auto; min-width: 160px;">
+                        <i class="fa-solid fa-plus"></i> Create Deal
+                    </button>
+                </div>
+
+                <!-- Columns populated dynamically via JS -->
+                <div class="kanban-board-container" id="kanban-board">
+                    <!-- Loaded dynamically via JS -->
+                </div>
+            </div>
+
+            <!-- ================= TAB: DAILY ACTIVITIES (DAR) ================= -->
+            <div id="activities-panel" class="page-panel">
+                <div class="content-card">
+                    <div class="table-toolbar">
+                        <div class="search-wrapper">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                            <input type="text" id="activity-search" class="search-input"
+                                placeholder="Search activities by school, specialist, result...">
+                        </div>
+                        <div class="toolbar-filters">
+                            <input type="date" id="activity-start-date" class="filter-select" title="Start Date">
+                            <input type="date" id="activity-end-date" class="filter-select" title="End Date">
+                            <select id="activity-employee-filter" class="filter-select">
+                                <option value="all">All Employees</option>
+                            </select>
+                            <button id="btn-submit-day-report" type="button" class="btn btn-secondary btn-inline" title="Submit all of today's draft activities for review.">
+                                <i class="fa-solid fa-paper-plane"></i> Submit Day's Report
+                            </button>
+                            <button id="btn-log-dar" type="button" class="btn btn-primary btn-inline">
+                                <i class="fa-solid fa-camera"></i> Log Fieldwork Activity
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="table-container">
+                        <table class="crm-table">
+                            <caption>Daily Activity Report (DAR) Sheets</caption>
+                            <thead>
+                                <tr>
+                                    <th>Activity ID</th>
+                                    <th>Specialist</th>
+                                    <th>School Visited</th>
+                                    <th>Date & Time</th>
+                                    <th>Activity Type</th>
+                                    <th>Person Met</th>
+                                    <th>Status</th>
+                                    <th>Result / Purpose</th>
+                                    <th>Photos</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="activities-table-body">
+                                <!-- Filled via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= TAB: PAYROLL ================= -->
+            <div id="payroll-panel" class="page-panel">
+                <div class="content-card">
+                    <div class="table-toolbar">
+                        <div class="card-title">
+                            <h3>Payroll Overview</h3>
+                            <p>Compensation records visible only to HR, Finance, CEO, and Admin users.</p>
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table class="crm-table">
+                            <caption>Payroll Overview</caption>
+                            <thead>
+                                <tr>
+                                    <th>Payroll ID</th>
+                                    <th>Employee</th>
+                                    <th>Role</th>
+                                    <th>Pay Period</th>
+                                    <th>Monthly Salary</th>
+                                    <th>Allowance</th>
+                                    <th>Net Pay</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="payroll-table-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= TAB: SETTINGS ================= -->
+            <div id="settings-panel" class="page-panel">
+                <div class="settings-grid" style="grid-template-columns: 1fr;">
+                    <div class="content-card">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <h3>EduLearn CRM Operations</h3>
+                                <p>System synchronization, local data backup resets and seeding overrides</p>
+                            </div>
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 16px;">
+                            <p style="font-size: 14px; color: var(--text-secondary);">
+                                Restores the database back to default initial sets, including 5 schools, 3 active leads,
+                                4 pipeline cards and seed users.
+                            </p>
+                            <div style="display: flex; gap: 16px; flex-wrap: wrap;">
+                                <button id="btn-reset-db" type="button" class="btn btn-secondary btn-inline"
+                                    data-confirmation-message="Are you sure you want to re-seed the entire database? This will restore all data to its initial state.">
+                                    <i class="fa-solid fa-arrows-rotate"></i> Re-Seed EduLearn Database
+                                </button>
+                                <button id="btn-clear-db" type="button" class="btn btn-danger btn-inline"
+                                    data-confirmation-message="Are you sure you want to format the database cache? This will delete all records. This action cannot be undone.">
+                                    <i class="fa-solid fa-trash-can"></i> Format Database Cache
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="content-card" id="user-management-card" style="margin-top: 24px; display: none;">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <h3>User Account Management</h3>
+                            <p>Create, edit, and delete user login accounts across the system.</p>
+                        </div>
+                        <button id="btn-add-user" type="button" class="btn btn-primary btn-inline">
+                            <i class="fa-solid fa-user-plus"></i> Add Account
+                        </button>
+                    </div>
+                    <div class="table-container">
+                        <table class="crm-table">
+                            <caption>User Account Management</caption>
+                            <thead>
+                                <tr>
+                                    <th>User ID</th>
+                                    <th>Name</th>
+                                    <th>Role</th>
+                                    <th>Region</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="user-table-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+    </div>
+    </main>
+    </div>
+
+    <!-- ================= ADD / EDIT USER MODAL ================= -->
+    <div id="user-modal" class="modal-overlay">
+        <div class="modal-card modal-card-md">
+            <button class="modal-close" id="btn-user-close"><i class="fa-solid fa-xmark"></i></button>
+            <div class="modal-header">
+                <h3 id="user-modal-title">Create User Account</h3>
+                <p>Admin can create or update login access for system users.</p>
+            </div>
+            <form id="user-form">
+                <input type="hidden" id="user-form-id">
+                <div class="form-group">
+                    <label for="user-id">Account ID</label>
+                    <input type="text" id="user-id" class="form-input" placeholder="admin, ceo, ss_visayas1" required>
+                </div>
+                <div class="form-group">
+                    <label for="user-name">Full Name</label>
+                    <input type="text" id="user-name" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label for="user-role">Role</label>
+                    <select id="user-role" class="form-select" required>
+                        <option value="System Administrator">System Administrator</option>
+                        <option value="President / CEO">President / CEO</option>
+                        <option value="VP for Sales and Marketing">VP for Sales and Marketing</option>
+                        <option value="Regional Manager">Regional Manager</option>
+                        <option value="District Manager">District Manager</option>
+                        <option value="Solution Specialist">Solution Specialist</option>
+                        <option value="Sales Account">Sales Account</option>
+                        <option value="Finance / Collections">Finance / Collections</option>
+                        <option value="Training / Fulfillment">Training / Fulfillment</option>
+                        <option value="Human Resource">Human Resource</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="user-region">Region</label>
+                    <select id="user-region" class="form-select" required>
+                        <option value="All">All</option>
+                        <option value="North Luzon">North Luzon</option>
+                        <option value="South Luzon">South Luzon</option>
+                        <option value="Visayas">Visayas</option>
+                        <option value="Mindanao">Mindanao</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="user-password">Password</label>
+                    <input type="password" id="user-password" class="form-input" required>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" id="btn-user-cancel" class="btn btn-secondary">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Account</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ================= ADD / EDIT SCHOOL MODAL ================= -->
+    <div id="school-modal" class="modal-overlay">
+        <div class="modal-card modal-card-lg">
+            <button class="modal-close" id="btn-school-close"><i class="fa-solid fa-xmark"></i></button>
+            <div class="modal-header">
+                <h3 id="school-modal-title">Register School Profile</h3>
+                <p>Register a new school or client institution under territory records</p>
+            </div>
+            <form id="school-form">
+                <input type="hidden" id="school-form-id">
+                <fieldset
+                    style="border: 1px solid var(--border-color); padding: 16px; border-radius: 8px; margin-bottom: 16px;">
+                    <legend style="padding: 0 8px; font-weight: 600; color: var(--text-secondary);">ACCOUNT PLAN
+                    </legend>
+                    <div class="form-grid form-grid-custom-1">
+                        <div class="form-group">
+                            <label for="school-name">School Name</label>
+                            <input type="text" id="school-name" class="form-input" required>
+                        </div>
+                        <div class="form-group" id="school-ss-group" style="display: none;">
+                            <label for="school-ss">Assigned Solution Specialist</label>
+                            <select id="school-ss" class="form-select"></select>
+                        </div>
+                    </div>
+                    <div class="form-grid form-grid-4-col">
+                        <div class="form-group">
+                            <label for="school-short-name">Short Name</label>
+                            <input type="text" id="school-short-name" class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label for="school-landline">Landline No.</label>
+                            <input type="text" id="school-landline" class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label for="school-health">Progress Stage</label>
+                            <select id="school-health" class="form-select" required
+                                title="Sets the stage for this school in the Progress Report."></select>
+                        </div>
+                        <div class="form-group">
+                            <label for="school-account-type-select">Account Type</label>
+                            <select id="school-account-type-select" class="form-select" required>
+                                <option value="Prospect Account" title="School or institution identified for possible future engagement">Prospect Account</option>
+                                <option value="Pipeline Account" title="Prospect with active movement, meeting, proposal, or forecast">Pipeline Account</option>
+                                <option value="Strategic Account" title="High-value, network, school group, diocese, or reputation-sensitive account assigned by Management">Strategic Account</option>
+                                <option value="House Account" title="Account directly managed by President, VP, or Management due to strategic sensitivity">House Account</option>
+                                <option value="District Account" title="Account assigned to a District Manager for direct handling or recovery">District Account</option>
+                                <option value="Regional Account" title="Account managed or supervised at Regional Manager level due to regional importance">Regional Account</option>
+                                <option value="Reassigned Account" title="Account formally transferred from one employee or territory to another">Reassigned Account</option>
+                                <option value="Temporary Coverage Account" title="Account temporarily handled due to vacancy, leave, resignation, reassignment, or urgent client need">Temporary Coverage Account</option>
+                                <option value="Disputed Account" title="Account with unclear assignment or competing claim requiring validation">Disputed Account</option>
+                                <option value="Dormant Account" title="Previously active or prospected account with no recent movement">Dormant Account</option>
+                                <option value="Lost Account" title="Account that cancelled, did not renew, shifted to another provider, or was otherwise lost, subject to validation">Lost Account</option>
+                                <option value="At-Risk Account" title="Account with known renewal, service, collection, satisfaction, or relationship risk requiring intervention">At-Risk Account</option>
+                                <option value="Reactivated Account" title="Dormant or inactive account revived and validated as active opportunity">Reactivated Account</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-grid form-grid-custom-1">
+                        <div class="form-group">
+                            <label for="school-address">Address</label>
+                            <input type="text" id="school-address" class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label for="school-email">School Email</label>
+                            <input type="email" id="school-email" class="form-input">
+                        </div>
+                    </div>
+                    <div class="form-grid form-grid-3-col">
+                        <div class="form-group">
+                            <label for="school-region">Region Command</label>
+                            <select id="school-region" class="form-select" required>
+                                <option value="North Luzon">North Luzon</option>
+                                <option value="South Luzon">South Luzon</option>
+                                <option value="Visayas">Visayas</option>
+                                <option value="Mindanao">Mindanao</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="school-territory">Official Territory</label>
+                            <select id="school-territory" class="form-select" required>
+                                <!-- Options populated dynamically by JS based on selected region -->
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="school-sub-territory">Sub-Territory / Area</label>
+                            <select id="school-sub-territory" class="form-select" required>
+                                <!-- Options populated dynamically by JS based on selected region -->
+                            </select>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <fieldset
+                    style="border: 1px solid var(--border-color); padding: 16px; border-radius: 8px; margin-bottom: 16px;">
+                    <legend style="padding: 0 8px; font-weight: 600; color: var(--text-secondary);">ACCOUNT PROGRESS
+                    </legend>
+                    <div class="form-group">
+                        <select id="school-progress" class="form-select" title="Account progress stage">
+                            <option>GATHERING INFORMATION</option>
+                            <option>SALES PRESENTATION</option>
+                            <option>PROPOSAL/NEGO</option>
+                            <option>RECOMMENDED</option>
+                            <option>DOCUMENTED</option>
+                            <option>WIN/LOSS</option>
+                        </select>
+                    </div>
+                </fieldset>
+
+                <fieldset
+                    style="border: 1px solid var(--border-color); padding: 16px; border-radius: 8px; margin-bottom: 16px;">
+                    <legend style="padding: 0 8px; font-weight: 600; color: var(--text-secondary);">GENERAL INFORMATION</legend>
+                
+                    <!-- Preschool -->
+                    <div style="margin-bottom: 16px;">
+                        <h4 style="font-size: 13px; font-weight: 600; margin-bottom: 12px; color: var(--text-primary);">Preschool</h4>
+                        <div class="form-grid form-grid-custom-2" style="gap: 8px;">
+                            <label style="font-weight: 600;">Level</label>
+                            <label style="font-weight: 600;">Population</label>
+                            <label style="font-weight: 600;">School Fees</label>
+                            <label style="font-weight: 600;">No. of Laboratories</label>
+                
+                            <label for="gen-info-k1-pop">K1</label>
+                            <input type="number" id="gen-info-k1-pop" class="form-input" placeholder="0" aria-label="K1 Population">
+                            <input type="number" id="gen-info-k1-fees" class="form-input" placeholder="0" aria-label="K1 Fees">
+                            <input type="number" id="gen-info-k1-labs" class="form-input" placeholder="0" aria-label="K1 Labs">
+                
+                            <label for="gen-info-k2-pop">K2</label>
+                            <input type="number" id="gen-info-k2-pop" class="form-input" placeholder="0" aria-label="K2 Population">
+                            <input type="number" id="gen-info-k2-fees" class="form-input" placeholder="0" aria-label="K2 Fees">
+                            <input type="number" id="gen-info-k2-labs" class="form-input" placeholder="0" aria-label="K2 Labs">
+                        </div>
+                    </div>
+                
+                    <!-- Grade School -->
+                    <div style="margin-bottom: 16px;">
+                        <h4 style="font-size: 13px; font-weight: 600; margin-bottom: 12px; color: var(--text-primary);">Grade School (Elementary)</h4>
+                        <div class="form-grid form-grid-custom-2" style="gap: 8px;">
+                            <label style="font-weight: 600;">Level</label> <label style="font-weight: 600;">Population</label> <label style="font-weight: 600;">School Fees</label> <label style="font-weight: 600;">No. of Labs</label>
+                            <label for="gen-info-g1-pop">Grade 1</label> <input type="number" id="gen-info-g1-pop" class="form-input" placeholder="0"> <input type="number" id="gen-info-g1-fees" class="form-input" placeholder="0"> <input type="number" id="gen-info-g1-labs" class="form-input" placeholder="0">
+                            <label for="gen-info-g2-pop">Grade 2</label> <input type="number" id="gen-info-g2-pop" class="form-input" placeholder="0"> <input type="number" id="gen-info-g2-fees" class="form-input" placeholder="0"> <input type="number" id="gen-info-g2-labs" class="form-input" placeholder="0">
+                            <label for="gen-info-g3-pop">Grade 3</label> <input type="number" id="gen-info-g3-pop" class="form-input" placeholder="0"> <input type="number" id="gen-info-g3-fees" class="form-input" placeholder="0"> <input type="number" id="gen-info-g3-labs" class="form-input" placeholder="0">
+                            <label for="gen-info-g4-pop">Grade 4</label> <input type="number" id="gen-info-g4-pop" class="form-input" placeholder="0"> <input type="number" id="gen-info-g4-fees" class="form-input" placeholder="0"> <input type="number" id="gen-info-g4-labs" class="form-input" placeholder="0">
+                            <label for="gen-info-g5-pop">Grade 5</label> <input type="number" id="gen-info-g5-pop" class="form-input" placeholder="0"> <input type="number" id="gen-info-g5-fees" class="form-input" placeholder="0"> <input type="number" id="gen-info-g5-labs" class="form-input" placeholder="0">
+                            <label for="gen-info-g6-pop">Grade 6</label> <input type="number" id="gen-info-g6-pop" class="form-input" placeholder="0"> <input type="number" id="gen-info-g6-fees" class="form-input" placeholder="0"> <input type="number" id="gen-info-g6-labs" class="form-input" placeholder="0">
+                        </div>
+                    </div>
+                
+                    <!-- Junior High School -->
+                    <div style="margin-bottom: 16px;">
+                        <h4 style="font-size: 13px; font-weight: 600; margin-bottom: 12px; color: var(--text-primary);">Junior High School</h4>
+                        <div class="form-grid form-grid-custom-2" style="gap: 8px;">
+                            <label style="font-weight: 600;">Level</label> <label style="font-weight: 600;">Population</label> <label style="font-weight: 600;">School Fees</label> <label style="font-weight: 600;">No. of Labs</label>
+                            <label for="gen-info-g7-pop">Grade 7</label> <input type="number" id="gen-info-g7-pop" class="form-input" placeholder="0"> <input type="number" id="gen-info-g7-fees" class="form-input" placeholder="0"> <input type="number" id="gen-info-g7-labs" class="form-input" placeholder="0">
+                            <label for="gen-info-g8-pop">Grade 8</label> <input type="number" id="gen-info-g8-pop" class="form-input" placeholder="0"> <input type="number" id="gen-info-g8-fees" class="form-input" placeholder="0"> <input type="number" id="gen-info-g8-labs" class="form-input" placeholder="0">
+                            <label for="gen-info-g9-pop">Grade 9</label> <input type="number" id="gen-info-g9-pop" class="form-input" placeholder="0"> <input type="number" id="gen-info-g9-fees" class="form-input" placeholder="0"> <input type="number" id="gen-info-g9-labs" class="form-input" placeholder="0">
+                            <label for="gen-info-g10-pop">Grade 10</label> <input type="number" id="gen-info-g10-pop" class="form-input" placeholder="0"> <input type="number" id="gen-info-g10-fees" class="form-input" placeholder="0"> <input type="number" id="gen-info-g10-labs" class="form-input" placeholder="0">
+                        </div>
+                    </div>
+                
+                    <!-- Senior High School -->
+                    <div style="margin-bottom: 16px;">
+                        <h4 style="font-size: 13px; font-weight: 600; margin-bottom: 12px; color: var(--text-primary);">Senior High School</h4>
+                        <div class="form-grid form-grid-custom-2" style="gap: 8px;">
+                            <label style="font-weight: 600;">Level</label> <label style="font-weight: 600;">Population</label> <label style="font-weight: 600;">School Fees</label> <label style="font-weight: 600;">No. of Labs</label>
+                            <label for="gen-info-g11-pop">Grade 11</label> <input type="number" id="gen-info-g11-pop" class="form-input" placeholder="0"> <input type="number" id="gen-info-g11-fees" class="form-input" placeholder="0"> <input type="number" id="gen-info-g11-labs" class="form-input" placeholder="0">
+                            <label for="gen-info-g12-pop">Grade 12</label> <input type="number" id="gen-info-g12-pop" class="form-input" placeholder="0"> <input type="number" id="gen-info-g12-fees" class="form-input" placeholder="0"> <input type="number" id="gen-info-g12-labs" class="form-input" placeholder="0">
+                        </div>
+                    </div>
+                
+                    <div class="form-group" style="margin-top: 16px;">
+                        <label>LEARNING MODALITY</label>
+                        <div
+                            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 8px; font-size: 13px;">
+                            <label style="display: flex; align-items: center; gap: 6px;"><input type="checkbox"
+                                    id="modality-dl-online-sync"><span>DISTANCE LEARNING - Online
+                                    Synchronous</span></label>
+                            <label style="display: flex; align-items: center; gap: 6px;"><input type="checkbox"
+                                    id="modality-dl-online-async"><span>DISTANCE LEARNING - Online
+                                    Asynchronous</span></label>
+                            <label style="display: flex; align-items: center; gap: 6px;"><input type="checkbox"
+                                    id="modality-dl-offline-modular"><span>DISTANCE LEARNING - Offline
+                                    Modular</span></label>
+                            <label style="display: flex; align-items: center; gap: 6px;"><input type="checkbox"
+                                    id="modality-bl-online"><span>BLENDED LEARNING - Online</span></label>
+                            <label style="display: flex; align-items: center; gap: 6px;"><input type="checkbox"
+                                    id="modality-bl-modular"><span>BLENDED LEARNING - Modular</span></label>
+                            <label style="display: flex; align-items: center; gap: 6px;"><input type="checkbox"
+                                    id="modality-bl-lftf"><span>BLENDED LEARNING - Limited Face to Face</span></label>
+                            <label style="display: flex; align-items: center; gap: 6px;"><input type="checkbox"
+                                    id="modality-dftf"><span>DAILY FACE TO FACE CLASSES</span></label>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <fieldset
+                    style="border: 1px solid var(--border-color); padding: 16px; border-radius: 8px; margin-bottom: 16px;">
+                    <legend style="padding: 0 8px; font-weight: 600; color: var(--text-secondary);">CUSTOMER CONTACTS
+                    </legend>
+
+                    <!-- Primary Contact -->
+                    <div style="border-bottom: 1px dashed var(--border-color); padding-bottom: 16px; margin-bottom: 16px;">
+                        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;"><b>Primary
+                                Contact:</b> Main point of contact for the institution.</p>
+                        <div class="form-grid form-grid-3-col">
+                            <div class="form-group">
+                                <label>Full Name</label>
+                                <input type="text" id="contact-primary-name" class="form-input">
+                            </div>
+                            <div class="form-group">
+                                <label>Designation</label>
+                                <input type="text" id="contact-primary-designation" class="form-input">
+                            </div>
+                            <div class="form-group">
+                                <label>Role</label>
+                                <input type="text" id="contact-primary-role" class="form-input">
+                            </div>
+                        </div>
+                        <div class="form-grid form-grid-3-col">
+                            <div class="form-group">
+                                <label>Contact No.</label>
+                                <input type="text" id="contact-primary-phone" class="form-input">
+                            </div>
+                            <div class="form-group">
+                                <label>Email Address</label>
+                                <input type="email" id="contact-primary-email" class="form-input">
+                            </div>
+                            <div class="form-group">
+                                <label>Birthday</label>
+                                <input type="date" id="contact-primary-birthday" class="form-input">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Other Contacts -->
+                    <div id="dynamic-contacts-container" style="display: flex; flex-direction: column; gap: 16px;">
+                        <!-- Dynamically added contacts will go here -->
+                    </div>
+
+                    <!-- Add Contact Button -->
+                    <div style="margin-top: 16px;">
+                        <button type="button" id="btn-add-contact" class="btn btn-secondary btn-inline">
+                            <i class="fa-solid fa-plus"></i> Add Another Contact
+                        </button>
+                    </div>
+
+                </fieldset>
+
+                <fieldset
+                    style="border: 1px solid var(--border-color); padding: 16px; border-radius: 8px; margin-bottom: 16px;">
+                    <legend style="padding: 0 8px; font-weight: 600; color: var(--text-secondary);">BUSINESS VALUE
+                    </legend>
+                    <div class="form-group">
+                        <label>Current Products & Values</label>
+                        <div id="school-products-checklist" style="display: flex; flex-direction: column; gap: 12px;">
+                            <!-- Product items will be populated by JS -->
+                        </div>
+                    </div>
+                    <div class="form-group"
+                        style="margin-top: 20px; border-top: 1px solid var(--border-color); padding-top: 16px;">
+                        <label for="school-value">Total Business Value (₱)</label>
+                        <input type="number" id="school-value" class="form-input" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="school-competitors">Competitors (comma-separated)</label>
+                        <input type="text" id="school-competitors" class="form-input"
+                            placeholder="e.g. Quipper, Rex Bookstore">
+                    </div>
+                </fieldset>
+                <div class="modal-actions">
+                    <button type="button" id="btn-school-cancel" class="btn btn-secondary">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save school file</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ================= VIEW SCHOOL DETAILS MODAL ================= -->
+    <div id="school-view-modal" class="modal-overlay">
+        <div class="modal-card modal-card-lg">
+            <button class="modal-close" id="btn-school-view-close"><i class="fa-solid fa-xmark"></i></button>
+            <div class="modal-header">
+                <h3 id="school-view-title">School Profile</h3>
+                <p id="school-view-subtitle">Detailed information for the selected institution.</p>
+            </div>
+            <div id="school-view-content" class="school-view-container">
+                <!-- Content will be populated by JS -->
+            </div>
+            <div class="modal-actions">
+                <button type="button" id="btn-school-view-cancel" class="btn btn-secondary">Close</button>
+                <button type="button" id="btn-school-view-edit" class="btn btn-primary">Edit School</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= ADD / EDIT DEAL MODAL ================= -->
+    <div id="deal-modal" class="modal-overlay">
+        <div class="modal-card modal-card-md">
+            <button class="modal-close" id="btn-deal-close"><i class="fa-solid fa-xmark"></i></button>
+            <div class="modal-header">
+                <h3 id="deal-modal-title">Opportunity Pipeline Deal</h3>
+                <p>Register or update a business opportunity pipeline value</p>
+            </div>
+
+            <form id="deal-form">
+                <input type="hidden" id="deal-form-id">
+                <input type="hidden" id="deal-form-pipeline">
+                <input type="hidden" id="deal-form-stage">
+
+                <div class="form-group">
+                    <label for="deal-school">School / Institution</label>
+                    <select id="deal-school" class="form-select" required></select>
+                </div>
+
+                <div class="form-group">
+                    <label for="deal-product">Product Interest</label>
+                    <select id="deal-product" class="form-select" required></select>
+                </div>
+
+                <div class="form-group">
+                    <label for="deal-gross">Gross Value (₱)</label>
+                    <input type="number" id="deal-gross" class="form-input" min="0" required>
+                </div>
+
+                <div class="form-grid form-grid-2-col">
+                    <div class="form-group">
+                        <label for="deal-students">Number of Students</label>
+                        <input type="number" id="deal-students" class="form-input" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="deal-ss">Assigned Solution Specialist</label>
+                        <select id="deal-ss" class="form-select" required></select>
+                    </div>
+                </div>
+
+                <!-- Delivery fields (shown for finance/fulfillment roles) -->
+                <div id="deal-delivery-fields-wrapper" style="border-top: 1px solid var(--border-color); padding-top: 14px; margin-top: 6px; display: none;">
+                    <div class="form-group">
+                        <label for="deal-si-delivered">SI Delivered Value (₱)</label>
+                        <input type="number" id="deal-si-delivered" class="form-input" min="0" placeholder="Enter actual delivered value">
+                    </div>
+                </div>
+
+                <!-- Collection fields (shown only for Collection pipeline or for finance users) -->
+                <div id="deal-collection-fields-wrapper"
+                    style="border-top: 1px solid var(--border-color); padding-top: 14px; margin-top: 6px; display: none;">
+                    <div class="form-grid form-grid-2-col">
+                        <div class="form-group">
+                            <label for="deal-collected-percent">Collection Percentage (%)</label>
+                            <input type="number" id="deal-collected-percent" class="form-input" min="0" max="100">
+                        </div>
+                        <div class="form-group">
+                            <label for="deal-amount-collected">Amount Collected (₱)</label>
+                            <input type="number" id="deal-amount-collected" class="form-input" min="0">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" id="btn-deal-cancel" class="btn btn-secondary">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Deal details</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ================= TASK BOARD MODAL ================= -->
+    <div id="task-modal" class="modal-overlay">
+        <div class="modal-card modal-card-md">
+            <button class="modal-close" id="btn-task-close"><i class="fa-solid fa-xmark"></i></button>
+            <div class="modal-header">
+                <h3 id="task-modal-title">Create New Task</h3>
+                <p>Track sales, collection, and implementation actions across teams.</p>
+            </div>
+
+            <form id="task-form">
+                <input type="hidden" id="task-form-id">
+
+                <div class="form-group">
+                    <label for="task-title">Task Title</label>
+                    <input type="text" id="task-title" class="form-input"
+                        placeholder="e.g. Follow up with Sacred Heart High School" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="task-category">Category</label>
+                    <select id="task-category" class="form-select" required>
+                        <option value="Proposal">Proposal</option>
+                        <option value="Collection Follow-Up">Collection Follow-Up</option>
+                        <option value="Training">Training</option>
+                        <option value="Customer Success">Customer Success</option>
+                        <option value="Administration">Administration</option>
+                    </select>
+                </div>
+
+                <div class="form-grid form-grid-2-col">
+                    <div class="form-group">
+                        <label for="task-assigned-to">Assigned To</label>
+                        <select id="task-assigned-to" class="form-select" required></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="task-school">Related School</label>
+                        <select id="task-school" class="form-select" required></select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="task-related-deal">Related Deal</label>
+                    <select id="task-related-deal" class="form-select"></select>
+                </div>
+
+                <div class="form-grid form-grid-2-col">
+                    <div class="form-group">
+                        <label for="task-due-date">Due Date</label>
+                        <input type="date" id="task-due-date" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="task-status">Status</label>
+                        <select id="task-status" class="form-select" required>
+                            <option value="Open">Open</option>
+                            <option value="In Progress">In Progress</option>
+                            <option value="Completed">Completed</option>
+                            <option value="Blocked">Blocked</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-grid form-grid-2-col">
+                    <div class="form-group">
+                        <label for="task-priority">Priority</label>
+                        <select id="task-priority" class="form-select" required>
+                            <option value="High">High</option>
+                            <option value="Medium">Medium</option>
+                            <option value="Low">Low</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="task-completion-status">Completion Status</label>
+                        <select id="task-completion-status" class="form-select">
+                            <option value="Pending">Pending</option>
+                            <option value="Completed">Completed</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="task-description">Task Description</label>
+                    <textarea id="task-description" class="form-input" rows="4"
+                        placeholder="Describe the task details and next steps."></textarea>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" id="btn-task-cancel" class="btn btn-secondary">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Task</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ================= KANBAN LOST REASON PROMPT MODAL ================= -->
+    <div id="lost-reason-modal" class="modal-overlay">
+        <div class="modal-card modal-card-sm">
+            <div class="modal-header">
+                <h3>Pipeline Stage: Lost Reason Required</h3>
+                <p>Please log the specific reasons for deal failure to complete auditing</p>
+            </div>
+
+            <form id="lost-reason-form">
+                <input type="hidden" id="lost-deal-id">
+                <input type="hidden" id="lost-deal-stage">
+
+                <div class="form-group">
+                    <label for="lost-reason-select">Select Lost Reason</label>
+                    <select id="lost-reason-select" class="form-select" required>
+                        <option value="" disabled selected>Select reason...</option>
+                        <option value="Price issue">Price issue</option>
+                        <option value="Already with competitor">Already with competitor</option>
+                        <option value="No budget">No budget</option>
+                        <option value="Decision deferred">Decision deferred</option>
+                        <option value="School not qualified">School not qualified</option>
+                        <option value="No response">No response</option>
+                        <option value="Management rejected terms">Management rejected terms</option>
+                        <option value="Territory conflict">Territory conflict</option>
+                        <option value="Service concern">Service concern</option>
+                        <option value="Other reason">Other reason</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="lost-reason-remarks">Detailed Audit Remarks</label>
+                    <textarea id="lost-reason-remarks" class="form-input" style="height: 100px; resize: none;"
+                        placeholder="Explain the lost reason details..." required></textarea>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="submit" class="btn btn-danger">Confirm Deal Lost</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ================= DAR LOG MODAL ================= -->
+    <div id="dar-modal" class="modal-overlay">
+        <div class="modal-card modal-card-lg">
+            <button class="modal-close" id="btn-dar-close"><i class="fa-solid fa-xmark"></i></button>
+            <div class="modal-header">
+                <h3>Log Fieldwork Activity</h3>
+                <p>Complete the visit details and provide verification photos.</p>
+            </div>
+            <form id="dar-form">
+                <input type="hidden" id="dar-form-id">
+                <div class="form-group">
+                    <label for="dar-school">School Visited</label>
+                    <input type="text" id="dar-school" class="form-input" list="dar-school-list"
+                        placeholder="Select or type school name..." required>
+                    <datalist id="dar-school-list"></datalist>
+                </div>
+
+                <div class="form-grid form-grid-2-col">
+                    <div class="form-group">
+                        <label for="dar-type">Activity Type</label>
+                        <select id="dar-type" class="form-select" required>
+                            <option value="School Visit">School Visit</option>
+                            <option value="Call">Call</option>
+                            <option value="Presentation">Presentation</option>
+                            <option value="Demo">Demo</option>
+                            <option value="Collection Follow-Up">Collection Follow-Up</option>
+                            <option value="Renewal Follow-Up">Renewal Follow-Up</option>
+                            <option value="Service Concern">Service Concern</option>
+                            <option value="Proposal Follow-Up">Proposal Follow-Up</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Person(s) Met</label>
+                        <div id="dar-contacts-container" style="display: flex; flex-direction: column; gap: 8px;">
+                            <!-- Person inputs will be added here by JS -->
+                        </div>
+                        <button type="button" id="btn-add-dar-contact" class="btn btn-secondary btn-inline"
+                            style="margin-top: 8px; width: auto; font-size: 11px; padding: 4px 10px;">
+                            <i class="fa-solid fa-plus"></i> Add Another Person
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-grid form-grid-2-col">
+                    <div class="form-group">
+                        <label for="dar-product">Product Discussed</label>
+                        <select id="dar-product" class="form-select" required>
+                            <option value="SAVVY">SAVVY</option>
+                            <option value="Robotics">Robotics</option>
+                            <option value="ICT">ICT</option>
+                            <option value="SIMS">SIMS</option>
+                            <option value="EVE">EVE</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="dar-followup-date">Next Follow-Up Date</label>
+                        <input type="date" id="dar-followup-date" class="form-input" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="dar-result">Activity Title / Purpose</label>
+                    <input type="text" id="dar-result" class="form-input" placeholder="e.g., Initial Presentation for SAVVY"
+                        required>
+                </div>
+
+                <div class="form-group">
+                    <label for="dar-next-action">Description / Remarks</label>
+                    <textarea id="dar-next-action" class="form-input" rows="3" placeholder="Describe the outcome, key discussion points, and next steps..."></textarea>
+                </div>
+
+                <!-- Verification Photo Dropzone -->
+                <div class="verification-photo-box">
+                    <label>Verification Photos</label>
+                    <div class="form-group">
+                        <div class="camera-stream-wrapper" id="webcam-container">
+                            <video id="webcam-feed" autoplay playsinline
+                                style="display: none; width: 100%; height: 100%; object-fit: cover; border-radius: 8px;"></video>
+                            <div class="camera-placeholder" id="webcam-placeholder">
+                                <i class="fa-solid fa-camera"
+                                    style="font-size: 24px; color: var(--text-muted); margin-bottom: 8px;"></i>
+                                <p>Browse image or snap</p>
+                            </div>
+                            <canvas id="webcam-canvas" style="display: none;"></canvas>
+                            <img id="current-snap-preview" src="" alt="Current Snap Preview"
+                                style="display: none; width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">
+                        </div>
+                        <div id="dar-photo-previews"
+                            style="display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap;">
+                            <!-- Thumbnails will be generated by JS -->
+                        </div>
+                        <div class="verification-controls" style="margin-top: 12px;">
+                            <div id="snap-controls" style="display: flex; gap: 8px; flex-wrap: wrap;">
+                                <button type="button" class="btn btn-secondary btn-inline" id="btn-camera"
+                                    style="padding: 6px 12px; font-size: 11px;"><i class="fa-solid fa-video"></i>
+                                    Open Camera</button>
+                                <button type="button" class="btn btn-danger btn-inline" id="btn-snap"
+                                    style="display: none; padding: 6px 12px; font-size: 11px;">
+                                    <i class="fa-solid fa-camera-retro"></i> Snap Photo (<span id="snap-count">0</span>)
+                                </button>
+                            </div>
+                            <div style="margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;">
+                                <button type="button" class="btn btn-secondary btn-inline" id="btn-mark-logout"
+                                    style="display: none; font-size: 11px; padding: 6px 12px;">
+                                    <i class="fa-solid fa-flag-checkered"></i> Mark Last as 'Time Out'
+                                </button>
+                                <button type="button" class="btn btn-danger btn-inline" id="btn-reset-photos"
+                                    style="padding: 6px 12px; font-size: 11px;"><i class="fa-solid fa-trash-can"></i>
+                                    Clear All Photos</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" id="btn-dar-cancel" class="btn btn-secondary">Cancel</button>
+                    <button type="submit" class="btn btn-primary"><i class="fa-solid fa-save"></i> Save
+                        Activity</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ================= PHOTO AUDIT LIGHTBOX MODAL ================= -->
+    <div id="photo-lightbox" class="modal-overlay">
+        <div class="modal-card modal-card-sm" style="text-align: center; padding: 24px;">
+            <button class="modal-close" id="btn-lightbox-close"><i class="fa-solid fa-xmark"></i></button>
+            <div class="modal-header" style="margin-bottom: 16px;">
+                <h3 id="lightbox-title">Fieldwork Photo Verification</h3>
+                <p id="lightbox-subtitle">EMP-101 - St. John Academy</p>
+            </div>
+
+            <div style="position: relative; width: 100%; height: 300px; border-radius: 12px; overflow: hidden; background: var(--bg-main); border: 1px solid var(--border-color);">
+                <img id="lightbox-img" src="" alt="Verification snapshot"
+                    style="width: 100%; height: 100%; object-fit: cover;">
+                <div id="lightbox-nav-container" style="position: absolute; top: 50%; width: 100%; display: none; justify-content: space-between; transform: translateY(-50%); padding: 0 10px;">
+                    <button id="lightbox-prev" class="action-icon-btn" style="background: rgba(0,0,0,0.3); color: white;"><i class="fa-solid fa-chevron-left"></i></button>
+                    <button id="lightbox-next" class="action-icon-btn" style="background: rgba(0,0,0,0.3); color: white;"><i class="fa-solid fa-chevron-right"></i></button>
+                </div>
+            </div>
+
+            <div class="form-grid form-grid-2-col"
+                style="margin-top: 16px; font-size: 13px; color: var(--text-secondary); text-align: left; gap: 8px; border-top: 1px solid var(--border-color); padding-top: 14px;">
+                <div><span style="color: var(--text-muted);" id="lightbox-label-type">Time In Image:</span> <strong
+                        id="lightbox-time">10:30 AM</strong></div>
+                <div><span style="color: var(--text-muted);">Date:</span> <strong id="lightbox-date">2026-06-22</strong>
+                </div>
+                <div><span style="color: var(--text-muted);">Location:</span> <strong id="lightbox-location">Location
+                        unavailable</strong></div>
+                <div><span style="color: var(--text-muted);">Coordinates:</span> <strong
+                        id="lightbox-coordinates">Location unavailable</strong></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= VIEW DAR DETAILS MODAL ================= -->
+    <div id="dar-view-modal" class="modal-overlay">
+        <div class="modal-card modal-card-lg">
+            <button class="modal-close" id="btn-dar-view-close"><i class="fa-solid fa-xmark"></i></button>
+            <div class="modal-header">
+                <h3 id="dar-view-title">Activity Details</h3>
+                <p id="dar-view-subtitle">Complete history for the selected fieldwork log.</p>
+            </div>
+            <div id="dar-view-content" class="school-view-container"
+                style="max-height: 60vh; overflow-y: auto; padding-right: 16px;">
+                <!-- Content will be populated by JS -->
+            </div>
+            <div class="modal-actions">
+                <button type="button" id="btn-dar-view-cancel" class="btn btn-secondary">Close</button>
+                <button type="button" id="btn-dar-view-edit" class="btn btn-primary">Edit Activity</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= VIEW GROUPED DAR DETAILS MODAL ================= -->
+    <div id="dar-group-view-modal" class="modal-overlay">
+        <div class="modal-card modal-card-lg">
+            <button class="modal-close" id="btn-dar-group-view-close"><i class="fa-solid fa-xmark"></i></button>
+            <div class="modal-header">
+                <h3 id="dar-group-view-title">Grouped Activity Details</h3>
+                <p id="dar-group-view-subtitle">Complete history for the selected school and date.</p>
+            </div>
+            <div id="dar-group-view-content" class="school-view-container"
+                style="max-height: 70vh; overflow-y: auto; padding-right: 16px;">
+                <!-- Content will be populated by JS -->
+            </div>
+            <div class="modal-actions">
+                <button type="button" id="btn-dar-group-view-cancel" class="btn btn-secondary">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Announcements container -->
+    <div id="toast-holder" class="toast-container"></div>
+
+    <script src="js/database.js"></script>
+    <script src="js/edulearn.js"></script>
+</body>
+
+</html>
