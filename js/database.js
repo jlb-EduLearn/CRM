@@ -65,6 +65,8 @@ const DEFAULT_DATA = {
     [DB_KEYS.PAYROLL]: DEFAULT_PAYROLL,
 };
 
+const API_BASE_URL = 'https://edulearn-crm-api.jlb-2fb.workers.dev';
+
 const EduLearnDB = {
     // The init function is no longer needed to seed localStorage.
     // The database will be managed by the backend.
@@ -77,7 +79,7 @@ const EduLearnDB = {
     // Helper to fetch data from the backend API
     async _getData(endpoint) {
         try {
-            const response = await fetch(`/api/${endpoint}`);
+            const response = await fetch(`${API_BASE_URL}/api/${endpoint}`);
             if (!response.ok) {
                 throw new Error(`Network response was not ok for ${endpoint}`);
             }
@@ -92,7 +94,7 @@ const EduLearnDB = {
     // Helper to save data to the backend API
     async _saveData(endpoint, data, method = 'POST') {
         try {
-            const response = await fetch(`/api/${endpoint}`, {
+            const response = await fetch(`${API_BASE_URL}/api/${endpoint}`, {
                 method: method,
                 headers: {
                     'Content-Type': 'application/json',
@@ -128,7 +130,7 @@ const EduLearnDB = {
 
     validateLogin: async function (userId, password) {
         try {
-            const response = await fetch('/api/login', {
+            const response = await fetch(`${API_BASE_URL}/api/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ userId, password }),
